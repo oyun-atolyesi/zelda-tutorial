@@ -53,6 +53,6 @@ export class MoveState extends BaseCharacterState {
   }
 
   #normalzieVelocity () {
-    this._gameObject.body.velocity.normalize().scale(80)
+    this._gameObject.body.velocity.normalize().scale(this._gameObject.speed)
   }
 }

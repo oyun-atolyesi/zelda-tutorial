@@ -4,9 +4,12 @@ import { StateMachine } from '../../components/state-machine/state-machine'
 import { CHARACTER_STATES } from '../../components/state-machine/state/character/character-states'
 import { IdleState } from '../../components/state-machine/state/character/idle-state'
 import { MoveState } from '../../components/state-machine/state/character/move-state'
+import { SpeedComponent } from '../../components/game-object/speed-component'
+import { PLAYER_SPEED } from '../../common/config'
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   #controlsComponent
+  #speedComponent
   #stateMachine
 
   constructor (config) {
@@ -17,6 +20,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this)
 
     this.#controlsComponent = new ControlsComponent(this, controls)
+    this.#speedComponent = new SpeedComponent(this, PLAYER_SPEED)
 
     this.#stateMachine = new StateMachine('player')
     this.#stateMachine.addState(new IdleState(this))
@@ -31,6 +35,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   get controls () {
     return this.#controlsComponent.controls
+  }
+
+  get speed () {
+    return this.#speedComponent.speed
   }
 
   update () {
