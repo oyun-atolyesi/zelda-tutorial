@@ -1,9 +1,13 @@
 import Phaser from 'phaser'
 import { PLAYER_ANIMATION_KEYS } from '../../common/assets'
 import { ControlsComponent } from '../../components/game-object/controls-component'
+import { StateMachine } from '../../components/state-machine/state-machine'
+import { IdleState } from '../../components/state-machine/state/character/idle-state'
+import { CHARACTER_STATES } from '../../components/state-machine/state/character/character-states'
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   #controlsComponent
+  #stateMachine
 
   constructor (config) {
     const { scene, position: { x, y }, assetKey, frame, controls } = config
@@ -16,10 +20,18 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.play({ key: PLAYER_ANIMATION_KEYS.IDLE_DOWN, repeat: -1 })
 
+    this.#stateMachine = new StateMachine('player')
+    this.#stateMachine.addState(new IdleState(this))
+    this.#stateMachine.setState(CHARACTER_STATES.IDLE_STATE)
+
     scene.events.on(Phaser.Scenes.Events.UPDATE, this.update, this)
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       scene.events.off(Phaser.Scenes.Events.UPDATE, this.update, this)
     })
+  }
+
+  get controls () {
+    return this.#controlsComponent.controls
   }
 
   update () {
@@ -58,6 +70,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     this.#normalzieVelocity()
+    this.#stateMachine.update()
   }
 
   #updateVelocity (isX, value) {
