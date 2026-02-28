@@ -1,4 +1,5 @@
 import { PLAYER_ANIMATION_KEYS } from '../../../../common/assets'
+import { getIsMoving } from '../../../../common/controls'
 import { BaseCharacterState } from './base-chaarcter-state'
 import { CHARACTER_STATES } from './character-states'
 
@@ -15,7 +16,7 @@ export class IdleState extends BaseCharacterState {
 
   onUpdate () {
     const controls = this._gameObject.controls
-    if (!(controls.isUpDown || controls.isDownDown || controls.isRightDown || controls.isLeftDown)) {
+    if (!getIsMoving(controls)) {
       return
     }
 
