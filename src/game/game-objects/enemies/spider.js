@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { ASSET_KEYS, SPIDER_ANIMATION_KEYS } from '../../common/assets'
-import { ENEMY_SPIDER_SPEED } from '../../common/config'
+import { ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MAX, ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MIN, ENEMY_SPIDER_SPEED } from '../../common/config'
+import { DIRECTION } from '../../common/controls'
 import { InputComponent } from '../../components/input/input-component'
 import { CHARACTER_STATES } from '../../components/state-machine/state/character/character-states'
 import { IdleState } from '../../components/state-machine/state/character/idle-state'
@@ -33,16 +34,32 @@ export class Spider extends CharacterGameObject {
       inputComponent: new InputComponent()
     })
 
+    this._directionComponent.callback = (direction) => {
+      this.#handleDirectionChange(direction)
+    }
+
     this._stateMachine.addState(new IdleState(this))
     this._stateMachine.addState(new MoveState(this))
     this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE)
 
-    this.scene.time.addEvent({
-      delay: Phaser.Math.Between(500, 1500),
-      callback: this.#changeDirection,
-      callbackScope: this,
-      loop: false
-    })
+    this.#addChangeDirectionEvent()
+  }
+
+  #handleDirectionChange (direction) {
+    switch (direction) {
+      case DIRECTION.DOWN:
+        this.setAngle(0)
+        break
+      case DIRECTION.UP:
+        this.setAngle(180)
+        break
+      case DIRECTION.LEFT:
+        this.setAngle(90)
+        break
+      case DIRECTION.RIGHT:
+        this.setAngle(270)
+        break
+    }
   }
 
   #changeDirection () {
@@ -59,9 +76,12 @@ export class Spider extends CharacterGameObject {
         this.controls.isRightDown = true
       }
     })
+    this.#addChangeDirectionEvent()
+  }
 
+  #addChangeDirectionEvent () {
     this.scene.time.addEvent({
-      delay: Phaser.Math.Between(500, 1500),
+      delay: Phaser.Math.Between(ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MIN, ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MAX),
       callback: this.#changeDirection,
       callbackScope: this,
       loop: false

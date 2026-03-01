@@ -4,11 +4,13 @@ import { ASSET_KEYS } from '../common/assets'
 import { Player } from '../game-objects/player/player'
 import { KeyboardComponent } from '../components/input/keyboard-component'
 import { Spider } from '../game-objects/enemies/spider'
+import { Wisp } from '../game-objects/enemies/wisp'
 
 export class GameScene extends Scene {
   #controls
   #player
   #spider
+  #wisp
 
   constructor () {
     super({
@@ -37,9 +39,16 @@ export class GameScene extends Scene {
       position: { x: this.scale.width / 2, y: this.scale.height / 2 + 50 }
     })
     this.#spider.setCollideWorldBounds(true)
+
+    this.#wisp = new Wisp({
+      scene: this,
+      position: { x: this.scale.width / 2, y: this.scale.height / 2 - 50 }
+    })
+    this.#wisp.setCollideWorldBounds(true)
   }
 
   update () {
     this.#spider.update()
+    this.#wisp.update()
   }
 }
