@@ -7,6 +7,9 @@ import { Spider } from '../game-objects/enemies/spider'
 import { Wisp } from '../game-objects/enemies/wisp'
 import { DIRECTION } from '../common/controls'
 import { PLAYER_START_MAX_HEALTH } from '../common/config'
+import { Pot } from '../game-objects/objects/pot'
+import { Chest } from '../game-objects/objects/chest'
+import { CHEST_STATE } from '../common/objects'
 
 export class GameScene extends Scene {
   #controls
@@ -48,6 +51,23 @@ export class GameScene extends Scene {
       })
     ], {
       runChildUpdate: true
+    })
+
+    new Pot({
+      scene: this,
+      position: { x: this.scale.width / 2 + 90, y: this.scale.height / 2 }
+    })
+
+    new Chest({
+      scene: this,
+      position: { x: this.scale.width / 2 - 90, y: this.scale.height / 2 },
+      requiresBossKey: false
+    })
+
+    new Chest({
+      scene: this,
+      position: { x: this.scale.width / 2 - 90, y: this.scale.height / 2 - 80 },
+      requiresBossKey: true
     })
 
     this.#registerColliders()

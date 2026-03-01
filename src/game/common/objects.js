@@ -1,0 +1,5 @@
+export const CHEST_STATE = {
+  HIDDEN: 'HIDDEN',
+  REVEALED: 'REVEALED',
+  OPEN: 'OPEN'
+}
