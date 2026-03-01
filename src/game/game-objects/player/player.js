@@ -11,7 +11,7 @@ import { DeathState } from '../../components/state-machine/state/character/death
 import { CollidingObjectsComponent } from '../../components/game-object/colliding-objects-component'
 import { LiftState } from '../../components/state-machine/state/character/lift-state'
 import { OpenChestState } from '../../components/state-machine/state/character/open-chest-state'
-import { IdleHoldingState } from '../../components/state-machine/state/character/idle-holding-state copy'
+import { IdleHoldingState } from '../../components/state-machine/state/character/idle-holding-state'
 import { MoveHoldingState } from '../../components/state-machine/state/character/move-holding-state'
 
 export class Player extends CharacterGameObject {

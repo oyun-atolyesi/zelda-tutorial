@@ -1,13 +1,13 @@
-import { DIRECTION, getIsMoving, getIsMovingVeritcally } from '../../../../common/controls'
+import { getIsMoving } from '../../../../common/controls'
 import { INTERACTIVE_OBJECT_TYPE } from '../../../../common/objects'
 import { CollidingObjectsComponent } from '../../../game-object/colliding-objects-component'
 import { InteractiveObjectsComponent } from '../../../game-object/interactive-objects-component'
-import { BaseCharacterState } from './base-chaarcter-state'
+import { BaseMoveState } from './base-move-state'
 import { CHARACTER_STATES } from './character-states'
 
-export class MoveState extends BaseCharacterState {
+export class MoveState extends BaseMoveState {
   constructor (gameObject) {
-    super(CHARACTER_STATES.MOVE_STATE, gameObject)
+    super(CHARACTER_STATES.MOVE_STATE, gameObject, 'WALK')
   }
 
   onUpdate () {
@@ -19,50 +19,7 @@ export class MoveState extends BaseCharacterState {
 
     if (this.#checkIfObjectWasInteractedWith(controls)) return
 
-    if (controls.isUpDown) {
-      this.#updateVelocity(false, -1)
-      this.#updateDirection(DIRECTION.UP)
-    } else if (controls.isDownDown) {
-      this.#updateVelocity(false, 1)
-      this.#updateDirection(DIRECTION.DOWN)
-    } else {
-      this.#updateVelocity(false, 0)
-    }
-
-    if (controls.isLeftDown) {
-      this._gameObject.setFlipX(true)
-      this.#updateVelocity(true, -1)
-      if (!getIsMovingVeritcally(controls)) {
-        this.#updateDirection(DIRECTION.LEFT)
-      }
-    } else if (controls.isRightDown) {
-      this._gameObject.setFlipX(false)
-      this.#updateVelocity(true, 1)
-      if (!getIsMovingVeritcally(controls)) {
-        this.#updateDirection(DIRECTION.RIGHT)
-      }
-    } else {
-      this.#updateVelocity(true, 0)
-    }
-
-    this.#normalzieVelocity()
-  }
-
-  #updateVelocity (isX, value) {
-    if (isX) {
-      this._gameObject.body.velocity.x = value
-      return
-    }
-    this._gameObject.body.velocity.y = value
-  }
-
-  #normalzieVelocity () {
-    this._gameObject.body.velocity.normalize().scale(this._gameObject.speed)
-  }
-
-  #updateDirection (direction) {
-    this._gameObject.direction = direction
-    this._gameObject.animationComponent.playAnimation(`WALK_${this._gameObject.direction}`)
+    this.handleCharacterMovement()
   }
 
   #checkIfObjectWasInteractedWith (controls) {
@@ -74,6 +31,9 @@ export class MoveState extends BaseCharacterState {
     if (interactiveObjectComponent === undefined) return false
 
     if (!controls.isActionKeyJustDown) return false
+
+    if (!interactiveObjectComponent.canInteractWith()) return false
+    interactiveObjectComponent.interact()
 
     switch (interactiveObjectComponent.objectType) {
       case INTERACTIVE_OBJECT_TYPE.PICKUP:
