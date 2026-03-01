@@ -1,7 +1,6 @@
 import Phaser from 'phaser'
 import { ASSET_KEYS, WISP_ANIMATION_KEYS } from '../../common/assets'
-import { ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MAX, ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MIN, ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_WAIT, ENEMY_WISP_PULSE_ANIMATION_DURATION, ENEMY_WISP_PULSE_ANIMATION_SCALE_X, ENEMY_WISP_PULSE_ANIMATION_SCALE_Y, ENEMY_WISP_SPEED } from '../../common/config'
-import { DIRECTION } from '../../common/controls'
+import { ENEMY_WISP_PULSE_ANIMATION_DURATION, ENEMY_WISP_PULSE_ANIMATION_SCALE_X, ENEMY_WISP_PULSE_ANIMATION_SCALE_Y, ENEMY_WISP_SPEED, ENEMY_WISP_START_MAX_HEALTH } from '../../common/config'
 import { InputComponent } from '../../components/input/input-component'
 import { BounceMoveState } from '../../components/state-machine/state/character/bounce-move-state'
 import { CHARACTER_STATES } from '../../components/state-machine/state/character/character-states'
@@ -27,7 +26,9 @@ export class Wisp extends CharacterGameObject {
       animationConfig,
       speed: ENEMY_WISP_SPEED,
       inputComponent: new InputComponent(),
-      isInvulnerable: true
+      isInvulnerable: true,
+      maxLife: ENEMY_WISP_START_MAX_HEALTH,
+      currentLife: ENEMY_WISP_START_MAX_HEALTH
     })
 
     this._stateMachine.addState(new BounceMoveState(this))

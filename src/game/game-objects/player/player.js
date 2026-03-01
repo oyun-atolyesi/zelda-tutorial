@@ -7,6 +7,7 @@ import { MoveState } from '../../components/state-machine/state/character/move-s
 import { CharacterGameObject } from '../common/character-game-object'
 import { HurtState } from '../../components/state-machine/state/character/hurt-state'
 import { flash } from '../../common/juice-utils'
+import { DeathState } from '../../components/state-machine/state/character/death-state'
 
 export class Player extends CharacterGameObject {
   constructor (config) {
@@ -22,7 +23,11 @@ export class Player extends CharacterGameObject {
       HURT_DOWN: { key: PLAYER_ANIMATION_KEYS.HURT_DOWN, repeat: 0, ignoreIfPlaying: true },
       HURT_UP: { key: PLAYER_ANIMATION_KEYS.HURT_UP, repeat: 0, ignoreIfPlaying: true },
       HURT_RIGHT: { key: PLAYER_ANIMATION_KEYS.HURT_SIDE, repeat: 0, ignoreIfPlaying: true },
-      HURT_LEFT: { key: PLAYER_ANIMATION_KEYS.HURT_SIDE, repeat: 0, ignoreIfPlaying: true }
+      HURT_LEFT: { key: PLAYER_ANIMATION_KEYS.HURT_SIDE, repeat: 0, ignoreIfPlaying: true },
+      DIE_DOWN: { key: PLAYER_ANIMATION_KEYS.DIE_DOWN, repeat: 0, ignoreIfPlaying: true },
+      DIE_UP: { key: PLAYER_ANIMATION_KEYS.DIE_UP, repeat: 0, ignoreIfPlaying: true },
+      DIE_RIGHT: { key: PLAYER_ANIMATION_KEYS.DIE_SIDE, repeat: 0, ignoreIfPlaying: true },
+      DIE_LEFT: { key: PLAYER_ANIMATION_KEYS.DIE_SIDE, repeat: 0, ignoreIfPlaying: true }
     }
 
     super({
@@ -36,7 +41,9 @@ export class Player extends CharacterGameObject {
       speed: PLAYER_SPEED,
       inputComponent: config.controls,
       isInvulnerable: false,
-      invulnerableAfterHitAnimationDuration: PLAYER_INVULNERABLE_AFTER_HIT_DURATION
+      invulnerableAfterHitAnimationDuration: PLAYER_INVULNERABLE_AFTER_HIT_DURATION,
+      maxLife: config.maxLife,
+      currentLife: config.currentLife
     })
 
     this._stateMachine.addState(new IdleState(this))
@@ -44,6 +51,7 @@ export class Player extends CharacterGameObject {
     this._stateMachine.addState(new HurtState(this, PLAYER_HURT_PUSH_BACK_SPEED, () => {
       flash(this)
     }))
+    this._stateMachine.addState(new DeathState(this))
     this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE)
 
     config.scene.events.on(Phaser.Scenes.Events.UPDATE, this.update, this)

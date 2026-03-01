@@ -6,6 +6,7 @@ import { KeyboardComponent } from '../components/input/keyboard-component'
 import { Spider } from '../game-objects/enemies/spider'
 import { Wisp } from '../game-objects/enemies/wisp'
 import { DIRECTION } from '../common/controls'
+import { PLAYER_START_MAX_HEALTH } from '../common/config'
 
 export class GameScene extends Scene {
   #controls
@@ -31,7 +32,9 @@ export class GameScene extends Scene {
     this.#player = new Player({
       scene: this,
       position: { x: this.scale.width / 2, y: this.scale.height / 2 },
-      controls: this.#controls
+      controls: this.#controls,
+      maxLife: PLAYER_START_MAX_HEALTH,
+      currentLife: PLAYER_START_MAX_HEALTH
     })
 
     this.#enemyGroup = this.add.group([
@@ -56,8 +59,8 @@ export class GameScene extends Scene {
     })
 
     this.physics.add.overlap(this.#player, this.#enemyGroup, (player, enemy) => {
-      this.#player.hit(DIRECTION.DOWN)
-      enemy.hit(this.#player.direction)
+      this.#player.hit(DIRECTION.DOWN, 1)
+      enemy.hit(this.#player.direction, 1)
     })
   }
 }

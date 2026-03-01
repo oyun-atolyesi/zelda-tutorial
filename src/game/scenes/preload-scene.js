@@ -22,5 +22,11 @@ export class PreloadScene extends Scene {
     this.anims.createFromAseprite(ASSET_KEYS.PLAYER)
     this.anims.createFromAseprite(ASSET_KEYS.SPIDER)
     this.anims.createFromAseprite(ASSET_KEYS.WISP)
+    this.anims.create({
+      key: ASSET_KEYS.ENEMY_DEATH,
+      frames: this.anims.generateFrameNumbers(ASSET_KEYS.ENEMY_DEATH),
+      frameRate: 6,
+      repeat: 0
+    })
   }
 }
