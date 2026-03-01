@@ -83,8 +83,8 @@ export class GameScene extends Scene {
       enemy.hit(this.#player.direction, 1)
     })
 
-    this.physics.add.collider(this.#player, this.#blockingGroup, () => {
-      //
+    this.physics.add.collider(this.#player, this.#blockingGroup, (player, gameObject) => {
+      this.#player.collidedWithGameObject(gameObject)
     })
 
     this.physics.add.collider(this.#enemyGroup, this.#blockingGroup, () => {
