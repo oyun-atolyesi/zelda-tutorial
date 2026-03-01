@@ -40,7 +40,7 @@ export class MoveState extends BaseMoveState {
         this._stateMachine.setState(CHARACTER_STATES.LIFT_STATE)
         return true
       case INTERACTIVE_OBJECT_TYPE.OPEN:
-        this._stateMachine.setState(CHARACTER_STATES.OPEN_CHEST_STATE)
+        this._stateMachine.setState(CHARACTER_STATES.OPEN_CHEST_STATE, collisionObject)
         return true
       case INTERACTIVE_OBJECT_TYPE.AUTO:
         return false

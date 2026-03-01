@@ -1,4 +1,4 @@
-import { Scene } from 'phaser'
+import Phaser, { Scene } from 'phaser'
 import { ASSET_KEYS } from '../common/assets'
 import { PLAYER_START_MAX_HEALTH } from '../common/config'
 import { DIRECTION } from '../common/controls'
@@ -9,6 +9,7 @@ import { Chest } from '../game-objects/objects/chest'
 import { Pot } from '../game-objects/objects/pot'
 import { Player } from '../game-objects/player/player'
 import { SCENE_KEYS } from './scene-keys'
+import { CUSTOM_EVENTS, EVENT_BUS } from '../common/event-bus'
 
 export class GameScene extends Scene {
   #controls
@@ -71,6 +72,7 @@ export class GameScene extends Scene {
     ])
 
     this.#registerColliders()
+    this.#registerCustomEvents()
   }
 
   #registerColliders () {
@@ -90,5 +92,16 @@ export class GameScene extends Scene {
     this.physics.add.collider(this.#enemyGroup, this.#blockingGroup, () => {
       //
     })
+  }
+
+  #registerCustomEvents () {
+    EVENT_BUS.on(CUSTOM_EVENTS.OPENED_CHEST, this.#handleOpenChest, this)
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      EVENT_BUS.off(CUSTOM_EVENTS.OPENED_CHEST, this.#handleOpenChest, this)
+    })
+  }
+
+  #handleOpenChest (chest) {
+    console.log('chest opened')
   }
 }
