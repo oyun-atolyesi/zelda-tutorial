@@ -1,29 +1,13 @@
 import Phaser from 'phaser'
-import { ControlsComponent } from '../../components/game-object/controls-component'
-import { StateMachine } from '../../components/state-machine/state-machine'
+import { ASSET_KEYS, PLAYER_ANIMATION_KEYS } from '../../common/assets'
+import { PLAYER_SPEED } from '../../common/config'
 import { CHARACTER_STATES } from '../../components/state-machine/state/character/character-states'
 import { IdleState } from '../../components/state-machine/state/character/idle-state'
 import { MoveState } from '../../components/state-machine/state/character/move-state'
-import { SpeedComponent } from '../../components/game-object/speed-component'
-import { PLAYER_SPEED } from '../../common/config'
-import { DirectionComponent } from '../../components/game-object/direction-component'
-import { AnimationComponent } from '../../components/game-object/animation-component'
-import { PLAYER_ANIMATION_KEYS } from '../../common/assets'
+import { CharacterGameObject } from '../common/character-game-object'
 
-export class Player extends Phaser.Physics.Arcade.Sprite {
-  #controlsComponent
-  #speedComponent
-  #directionComponent
-  #animationComponent
-  #stateMachine
-
+export class Player extends CharacterGameObject {
   constructor (config) {
-    const { scene, position: { x, y }, assetKey, frame, controls } = config
-    super(scene, x, y, assetKey, frame || 0)
-
-    scene.add.existing(this)
-    scene.physics.add.existing(this)
-
     const animationConfig = {
       IDLE_DOWN: { key: PLAYER_ANIMATION_KEYS.IDLE_DOWN, repeat: -1, ignoreIfPlaying: true },
       IDLE_UP: { key: PLAYER_ANIMATION_KEYS.IDLE_UP, repeat: -1, ignoreIfPlaying: true },
@@ -35,42 +19,25 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       WALK_LEFT: { key: PLAYER_ANIMATION_KEYS.WALK_SIDE, repeat: -1, ignoreIfPlaying: true }
     }
 
-    this.#controlsComponent = new ControlsComponent(this, controls)
-    this.#speedComponent = new SpeedComponent(this, PLAYER_SPEED)
-    this.#directionComponent = new DirectionComponent(this)
-    this.#animationComponent = new AnimationComponent(this, animationConfig)
-    this.#stateMachine = new StateMachine('player')
-    this.#stateMachine.addState(new IdleState(this))
-    this.#stateMachine.addState(new MoveState(this))
-    this.#stateMachine.setState(CHARACTER_STATES.IDLE_STATE)
-
-    scene.events.on(Phaser.Scenes.Events.UPDATE, this.update, this)
-    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      scene.events.off(Phaser.Scenes.Events.UPDATE, this.update, this)
+    super({
+      scene: config.scene,
+      position: config.position,
+      assetKey: ASSET_KEYS.PLAYER,
+      frame: 0,
+      id: 'player',
+      isPlayer: true,
+      animationConfig,
+      speed: PLAYER_SPEED,
+      inputComponent: config.controls
     })
-  }
 
-  get controls () {
-    return this.#controlsComponent.controls
-  }
+    this._stateMachine.addState(new IdleState(this))
+    this._stateMachine.addState(new MoveState(this))
+    this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE)
 
-  get speed () {
-    return this.#speedComponent.speed
-  }
-
-  get direction () {
-    return this.#directionComponent.direction
-  }
-
-  set direction (direction) {
-    this.#directionComponent.direction = direction
-  }
-
-  get animationComponent () {
-    return this.#animationComponent
-  }
-
-  update () {
-    this.#stateMachine.update()
+    config.scene.events.on(Phaser.Scenes.Events.UPDATE, this.update, this)
+    config.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      config.scene.events.off(Phaser.Scenes.Events.UPDATE, this.update, this)
+    })
   }
 }
