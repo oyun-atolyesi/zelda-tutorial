@@ -38,6 +38,6 @@ export class AnimationComponent extends BaseGameObjectComponent {
   }
 
   isAnimationPlaying () {
-    return this._gameObject.anims.isPlaying
+    return this.gameObject.anims.isPlaying
   }
 }
