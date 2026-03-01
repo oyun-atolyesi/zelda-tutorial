@@ -1,25 +1,31 @@
 import Phaser from 'phaser'
 import { ASSET_KEYS, SPIDER_ANIMATION_KEYS } from '../../common/assets'
-import { ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MAX, ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MIN, ENEMY_SPIDER_SPEED } from '../../common/config'
+import { ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MAX, ENEMY_SPIDER_CHANGE_DIRECTION_DELAY_MIN, ENEMY_SPIDER_HURT_PUSH_BACK_SPEED, ENEMY_SPIDER_SPEED, PLAYER_HURT_PUSH_BACK_SPEED } from '../../common/config'
 import { DIRECTION } from '../../common/controls'
 import { InputComponent } from '../../components/input/input-component'
 import { CHARACTER_STATES } from '../../components/state-machine/state/character/character-states'
 import { IdleState } from '../../components/state-machine/state/character/idle-state'
 import { MoveState } from '../../components/state-machine/state/character/move-state'
 import { CharacterGameObject } from '../common/character-game-object'
+import { HurtState } from '../../components/state-machine/state/character/hurt-state'
 
 export class Spider extends CharacterGameObject {
   constructor (config) {
-    const animConfig = { key: SPIDER_ANIMATION_KEYS.WALK, repeat: -1, ignoreIfPlaying: true }
+    const walkAnimConfig = { key: SPIDER_ANIMATION_KEYS.WALK, repeat: -1, ignoreIfPlaying: true }
+    const hurtAnimConfig = { key: SPIDER_ANIMATION_KEYS.HIT, repeat: 0, ignoreIfPlaying: true }
     const animationConfig = {
-      IDLE_DOWN: animConfig,
-      IDLE_UP: animConfig,
-      IDLE_RIGHT: animConfig,
-      IDLE_LEFT: animConfig,
-      WALK_DOWN: animConfig,
-      WALK_UP: animConfig,
-      WALK_RIGHT: animConfig,
-      WALK_LEFT: animConfig
+      IDLE_DOWN: walkAnimConfig,
+      IDLE_UP: walkAnimConfig,
+      IDLE_RIGHT: walkAnimConfig,
+      IDLE_LEFT: walkAnimConfig,
+      WALK_DOWN: walkAnimConfig,
+      WALK_UP: walkAnimConfig,
+      WALK_RIGHT: walkAnimConfig,
+      WALK_LEFT: walkAnimConfig,
+      HURT_DOWN: hurtAnimConfig,
+      HURT_UP: hurtAnimConfig,
+      HURT_RIGHT: hurtAnimConfig,
+      HURT_LEFT: hurtAnimConfig
     }
 
     super({
@@ -31,7 +37,8 @@ export class Spider extends CharacterGameObject {
       isPlayer: false,
       animationConfig,
       speed: ENEMY_SPIDER_SPEED,
-      inputComponent: new InputComponent()
+      inputComponent: new InputComponent(),
+      isInvulnerable: false
     })
 
     this._directionComponent.callback = (direction) => {
@@ -40,6 +47,7 @@ export class Spider extends CharacterGameObject {
 
     this._stateMachine.addState(new IdleState(this))
     this._stateMachine.addState(new MoveState(this))
+    this._stateMachine.addState(new HurtState(this, ENEMY_SPIDER_HURT_PUSH_BACK_SPEED))
     this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE)
 
     this.#addChangeDirectionEvent()

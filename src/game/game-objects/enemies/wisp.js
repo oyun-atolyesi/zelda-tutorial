@@ -26,7 +26,8 @@ export class Wisp extends CharacterGameObject {
       isPlayer: false,
       animationConfig,
       speed: ENEMY_WISP_SPEED,
-      inputComponent: new InputComponent()
+      inputComponent: new InputComponent(),
+      isInvulnerable: true
     })
 
     this._stateMachine.addState(new BounceMoveState(this))

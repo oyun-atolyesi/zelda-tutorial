@@ -1,10 +1,12 @@
 import Phaser from 'phaser'
 import { ASSET_KEYS, PLAYER_ANIMATION_KEYS } from '../../common/assets'
-import { PLAYER_SPEED } from '../../common/config'
+import { PLAYER_HURT_PUSH_BACK_SPEED, PLAYER_INVULNERABLE_AFTER_HIT_DURATION, PLAYER_SPEED } from '../../common/config'
 import { CHARACTER_STATES } from '../../components/state-machine/state/character/character-states'
 import { IdleState } from '../../components/state-machine/state/character/idle-state'
 import { MoveState } from '../../components/state-machine/state/character/move-state'
 import { CharacterGameObject } from '../common/character-game-object'
+import { HurtState } from '../../components/state-machine/state/character/hurt-state'
+import { flash } from '../../common/juice-utils'
 
 export class Player extends CharacterGameObject {
   constructor (config) {
@@ -16,7 +18,11 @@ export class Player extends CharacterGameObject {
       WALK_DOWN: { key: PLAYER_ANIMATION_KEYS.WALK_DOWN, repeat: -1, ignoreIfPlaying: true },
       WALK_UP: { key: PLAYER_ANIMATION_KEYS.WALK_UP, repeat: -1, ignoreIfPlaying: true },
       WALK_RIGHT: { key: PLAYER_ANIMATION_KEYS.WALK_SIDE, repeat: -1, ignoreIfPlaying: true },
-      WALK_LEFT: { key: PLAYER_ANIMATION_KEYS.WALK_SIDE, repeat: -1, ignoreIfPlaying: true }
+      WALK_LEFT: { key: PLAYER_ANIMATION_KEYS.WALK_SIDE, repeat: -1, ignoreIfPlaying: true },
+      HURT_DOWN: { key: PLAYER_ANIMATION_KEYS.HURT_DOWN, repeat: 0, ignoreIfPlaying: true },
+      HURT_UP: { key: PLAYER_ANIMATION_KEYS.HURT_UP, repeat: 0, ignoreIfPlaying: true },
+      HURT_RIGHT: { key: PLAYER_ANIMATION_KEYS.HURT_SIDE, repeat: 0, ignoreIfPlaying: true },
+      HURT_LEFT: { key: PLAYER_ANIMATION_KEYS.HURT_SIDE, repeat: 0, ignoreIfPlaying: true }
     }
 
     super({
@@ -28,16 +34,23 @@ export class Player extends CharacterGameObject {
       isPlayer: true,
       animationConfig,
       speed: PLAYER_SPEED,
-      inputComponent: config.controls
+      inputComponent: config.controls,
+      isInvulnerable: false,
+      invulnerableAfterHitAnimationDuration: PLAYER_INVULNERABLE_AFTER_HIT_DURATION
     })
 
     this._stateMachine.addState(new IdleState(this))
     this._stateMachine.addState(new MoveState(this))
+    this._stateMachine.addState(new HurtState(this, PLAYER_HURT_PUSH_BACK_SPEED, () => {
+      flash(this)
+    }))
     this._stateMachine.setState(CHARACTER_STATES.IDLE_STATE)
 
     config.scene.events.on(Phaser.Scenes.Events.UPDATE, this.update, this)
     config.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       config.scene.events.off(Phaser.Scenes.Events.UPDATE, this.update, this)
     })
+
+    this.body.setSize(12, 16, true).setOffset(this.width / 2 - 5, this.height / 2)
   }
 }

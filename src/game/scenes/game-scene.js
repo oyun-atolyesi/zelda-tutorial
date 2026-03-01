@@ -5,12 +5,12 @@ import { Player } from '../game-objects/player/player'
 import { KeyboardComponent } from '../components/input/keyboard-component'
 import { Spider } from '../game-objects/enemies/spider'
 import { Wisp } from '../game-objects/enemies/wisp'
+import { DIRECTION } from '../common/controls'
 
 export class GameScene extends Scene {
   #controls
   #player
-  #spider
-  #wisp
+  #enemyGroup
 
   constructor () {
     super({
@@ -34,21 +34,30 @@ export class GameScene extends Scene {
       controls: this.#controls
     })
 
-    this.#spider = new Spider({
-      scene: this,
-      position: { x: this.scale.width / 2, y: this.scale.height / 2 + 50 }
+    this.#enemyGroup = this.add.group([
+      new Spider({
+        scene: this,
+        position: { x: this.scale.width / 2, y: this.scale.height / 2 + 50 }
+      }),
+      new Wisp({
+        scene: this,
+        position: { x: this.scale.width / 2, y: this.scale.height / 2 - 50 }
+      })
+    ], {
+      runChildUpdate: true
     })
-    this.#spider.setCollideWorldBounds(true)
 
-    this.#wisp = new Wisp({
-      scene: this,
-      position: { x: this.scale.width / 2, y: this.scale.height / 2 - 50 }
-    })
-    this.#wisp.setCollideWorldBounds(true)
+    this.#registerColliders()
   }
 
-  update () {
-    this.#spider.update()
-    this.#wisp.update()
+  #registerColliders () {
+    this.#enemyGroup.getChildren().forEach(enemy => {
+      enemy.setCollideWorldBounds(true)
+    })
+
+    this.physics.add.overlap(this.#player, this.#enemyGroup, (player, enemy) => {
+      this.#player.hit(DIRECTION.DOWN)
+      enemy.hit(this.#player.direction)
+    })
   }
 }

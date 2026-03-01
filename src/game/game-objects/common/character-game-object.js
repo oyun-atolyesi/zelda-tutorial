@@ -4,17 +4,20 @@ import { ControlsComponent } from '../../components/game-object/controls-compone
 import { DirectionComponent } from '../../components/game-object/direction-component'
 import { SpeedComponent } from '../../components/game-object/speed-component'
 import { StateMachine } from '../../components/state-machine/state-machine'
+import { InvulnerableComponent } from '../../components/game-object/invulnerable-component'
+import { CHARACTER_STATES } from '../../components/state-machine/state/character/character-states'
 
 export class CharacterGameObject extends Phaser.Physics.Arcade.Sprite {
   _controlsComponent
   _speedComponent
   _directionComponent
   _animationComponent
+  _invulnerableComponent
   _stateMachine
   _isPlayer
 
   constructor (config) {
-    const { scene, position: { x, y }, assetKey, frame, speed, animationConfig, inputComponent, id, isPlayer } = config
+    const { scene, position: { x, y }, assetKey, frame, speed, animationConfig, inputComponent, id, isPlayer, isInvulnerable = false, invulnerableAfterHitAnimationDuration } = config
     super(scene, x, y, assetKey, frame || 0)
 
     scene.add.existing(this)
@@ -24,6 +27,7 @@ export class CharacterGameObject extends Phaser.Physics.Arcade.Sprite {
     this._speedComponent = new SpeedComponent(this, speed)
     this._directionComponent = new DirectionComponent(this)
     this._animationComponent = new AnimationComponent(this, animationConfig)
+    this._invulnerableComponent = new InvulnerableComponent(this, isInvulnerable, invulnerableAfterHitAnimationDuration)
 
     this._stateMachine = new StateMachine(id)
 
@@ -54,7 +58,16 @@ export class CharacterGameObject extends Phaser.Physics.Arcade.Sprite {
     return this._animationComponent
   }
 
+  get invulnerableComponent () {
+    return this._invulnerableComponent
+  }
+
   update () {
     this._stateMachine.update()
+  }
+
+  hit (direction) {
+    if (this._invulnerableComponent.invulnerable) return
+    this._stateMachine.setState(CHARACTER_STATES.HURT_STATE, direction)
   }
 }
