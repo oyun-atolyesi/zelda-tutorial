@@ -1,4 +1,3 @@
-import { PLAYER_ANIMATION_KEYS } from '../../../../common/assets'
 import { getIsMoving } from '../../../../common/controls'
 import { BaseCharacterState } from './base-chaarcter-state'
 import { CHARACTER_STATES } from './character-states'
@@ -9,7 +8,7 @@ export class IdleState extends BaseCharacterState {
   }
 
   onEnter () {
-    this._gameObject.play({ key: PLAYER_ANIMATION_KEYS.IDLE_DOWN, repeat: -1 }, true)
+    this._gameObject.animationComponent.playAnimation(`IDLE_${this._gameObject.direction}`)
     this._gameObject.body.velocity.x = 0
     this._gameObject.body.velocity.y = 0
   }

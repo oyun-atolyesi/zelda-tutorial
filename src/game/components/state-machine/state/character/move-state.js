@@ -1,5 +1,4 @@
-import { PLAYER_ANIMATION_KEYS } from '../../../../common/assets'
-import { getIsMoving, getIsMovingVeritcally } from '../../../../common/controls'
+import { DIRECTION, getIsMoving, getIsMovingVeritcally } from '../../../../common/controls'
 import { BaseCharacterState } from './base-chaarcter-state'
 import { CHARACTER_STATES } from './character-states'
 
@@ -16,11 +15,11 @@ export class MoveState extends BaseCharacterState {
     }
 
     if (controls.isUpDown) {
-      this._gameObject.play({ key: PLAYER_ANIMATION_KEYS.WALK_UP, repeat: -1 }, true)
       this.#updateVelocity(false, -1)
+      this.#updateDirection(DIRECTION.UP)
     } else if (controls.isDownDown) {
-      this._gameObject.play({ key: PLAYER_ANIMATION_KEYS.WALK_DOWN, repeat: -1 }, true)
       this.#updateVelocity(false, 1)
+      this.#updateDirection(DIRECTION.DOWN)
     } else {
       this.#updateVelocity(false, 0)
     }
@@ -29,13 +28,13 @@ export class MoveState extends BaseCharacterState {
       this._gameObject.setFlipX(true)
       this.#updateVelocity(true, -1)
       if (!getIsMovingVeritcally(controls)) {
-        this._gameObject.play({ key: PLAYER_ANIMATION_KEYS.WALK_SIDE, repeat: -1 }, true)
+        this.#updateDirection(DIRECTION.LEFT)
       }
     } else if (controls.isRightDown) {
       this._gameObject.setFlipX(false)
       this.#updateVelocity(true, 1)
       if (!getIsMovingVeritcally(controls)) {
-        this._gameObject.play({ key: PLAYER_ANIMATION_KEYS.WALK_SIDE, repeat: -1 }, true)
+        this.#updateDirection(DIRECTION.RIGHT)
       }
     } else {
       this.#updateVelocity(true, 0)
@@ -54,5 +53,10 @@ export class MoveState extends BaseCharacterState {
 
   #normalzieVelocity () {
     this._gameObject.body.velocity.normalize().scale(this._gameObject.speed)
+  }
+
+  #updateDirection (direction) {
+    this._gameObject.direction = direction
+    this._gameObject.animationComponent.playAnimation(`WALK_${this._gameObject.direction}`)
   }
 }
