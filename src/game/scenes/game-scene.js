@@ -1,20 +1,20 @@
 import { Scene } from 'phaser'
-import { SCENE_KEYS } from './scene-keys'
 import { ASSET_KEYS } from '../common/assets'
-import { Player } from '../game-objects/player/player'
+import { PLAYER_START_MAX_HEALTH } from '../common/config'
+import { DIRECTION } from '../common/controls'
 import { KeyboardComponent } from '../components/input/keyboard-component'
 import { Spider } from '../game-objects/enemies/spider'
 import { Wisp } from '../game-objects/enemies/wisp'
-import { DIRECTION } from '../common/controls'
-import { PLAYER_START_MAX_HEALTH } from '../common/config'
-import { Pot } from '../game-objects/objects/pot'
 import { Chest } from '../game-objects/objects/chest'
-import { CHEST_STATE } from '../common/objects'
+import { Pot } from '../game-objects/objects/pot'
+import { Player } from '../game-objects/player/player'
+import { SCENE_KEYS } from './scene-keys'
 
 export class GameScene extends Scene {
   #controls
   #player
   #enemyGroup
+  #blockingGroup
 
   constructor () {
     super({
@@ -53,22 +53,22 @@ export class GameScene extends Scene {
       runChildUpdate: true
     })
 
-    new Pot({
-      scene: this,
-      position: { x: this.scale.width / 2 + 90, y: this.scale.height / 2 }
-    })
-
-    new Chest({
-      scene: this,
-      position: { x: this.scale.width / 2 - 90, y: this.scale.height / 2 },
-      requiresBossKey: false
-    })
-
-    new Chest({
-      scene: this,
-      position: { x: this.scale.width / 2 - 90, y: this.scale.height / 2 - 80 },
-      requiresBossKey: true
-    })
+    this.#blockingGroup = this.add.group([
+      new Pot({
+        scene: this,
+        position: { x: this.scale.width / 2 + 90, y: this.scale.height / 2 }
+      }),
+      new Chest({
+        scene: this,
+        position: { x: this.scale.width / 2 - 90, y: this.scale.height / 2 },
+        requiresBossKey: false
+      }),
+      new Chest({
+        scene: this,
+        position: { x: this.scale.width / 2 - 90, y: this.scale.height / 2 - 80 },
+        requiresBossKey: true
+      })
+    ])
 
     this.#registerColliders()
   }
@@ -81,6 +81,14 @@ export class GameScene extends Scene {
     this.physics.add.overlap(this.#player, this.#enemyGroup, (player, enemy) => {
       this.#player.hit(DIRECTION.DOWN, 1)
       enemy.hit(this.#player.direction, 1)
+    })
+
+    this.physics.add.collider(this.#player, this.#blockingGroup, () => {
+      //
+    })
+
+    this.physics.add.collider(this.#enemyGroup, this.#blockingGroup, () => {
+      //
     })
   }
 }
